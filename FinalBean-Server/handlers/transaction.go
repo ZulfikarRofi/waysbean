@@ -8,11 +8,16 @@ import (
 	"encoding/json"
 	"math/rand"
 	"net/http"
+	"os"
 
 	// "os"
 	"strconv"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/midtrans/midtrans-go"
+	"github.com/midtrans/midtrans-go/coreapi"
+	"github.com/midtrans/midtrans-go/snap"
+
 	// "github.com/midtrans/midtrans-go/coreapi"
 
 	"github.com/gorilla/mux"
@@ -20,10 +25,10 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 )
 
-// var c = coreapi.Client{
-// 	ServerKey: os.Getenv("SERVER_KEY"),
-// 	ClientKey: os.Getenv("CLIENT_KEY"),
-// }
+var c = coreapi.Client{
+	ServerKey: os.Getenv("SERVER_KEY"),
+	ClientKey: os.Getenv("CLIENT_KEY"),
+}
 
 type handlerTransaction struct {
 	TransactionRepository repositories.TransactionRepository
@@ -177,38 +182,38 @@ func (h *handlerTransaction) UpdateTransaction(w http.ResponseWriter, r *http.Re
 		json.NewEncoder(w).Encode(response)
 	}
 
-	dataTransactions, err := h.TransactionRepository.FindbyIDTransaction(idTrans, "unpay")
+	dataTransactions, err := h.TransactionRepository.FindbyIDTransaction(idTrans, request.Status)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		json.NewEncoder(w).Encode(err.Error())
 		return
 	}
 
-	// // 1. Initiate Snap client
-	// var s = snap.Client{}
-	// s.New("SB-Mid-server-4eCWOLTHCsl1kjXWS_5hPoWZ", midtrans.Sandbox)
-	// // Use to midtrans.Production if you want Production Environment (accept real transaction).
+	// 1. Initiate Snap client
+	var s = snap.Client{}
+	s.New("SB-Mid-server-LYEJzHCRxCizHCcG9L2kqgyD", midtrans.Sandbox)
+	// Use to midtrans.Production if you want Production Environment (accept real transaction).
 
-	// // 2. Initiate Snap request param
-	// req := &snap.Request{
-	// 	TransactionDetails: midtrans.TransactionDetails{
-	// 		OrderID:  strconv.Itoa(idTrans),
-	// 		GrossAmt: int64(dataTransactions.Total),
-	// 	},
-	// 	CreditCard: &snap.CreditCardDetails{
-	// 		Secure: true,
-	// 	},
-	// 	CustomerDetail: &midtrans.CustomerDetails{
-	// 		FName: dataTransactions.User.Name,
-	// 		Email: dataTransactions.User.Email,
-	// 	},
-	// }
+	// 2. Initiate Snap request param
+	req := &snap.Request{
+		TransactionDetails: midtrans.TransactionDetails{
+			OrderID:  strconv.Itoa(idTrans),
+			GrossAmt: int64(dataTransactions.Total),
+		},
+		CreditCard: &snap.CreditCardDetails{
+			Secure: true,
+		},
+		CustomerDetail: &midtrans.CustomerDetails{
+			FName: dataTransactions.User.Name,
+			Email: dataTransactions.User.Email,
+		},
+	}
 
-	// // 3. Execute request create Snap transaction to Midtrans Snap API
-	// snapResp, _ := s.CreateTransaction(req)
+	// 3. Execute request create Snap transaction to Midtrans Snap API
+	snapResp, _ := s.CreateTransaction(req)
 
 	w.WriteHeader(http.StatusOK)
-	response := dto.SuccessResult{Code: 200, Data: dataTransactions}
+	response := dto.SuccessResult{Code: 200, Data: snapResp}
 	json.NewEncoder(w).Encode(response)
 }
 

@@ -22,8 +22,8 @@ export default function LoginModal({ loginShow, Close }) {
 
   //State Login
   const [formLog, setFormLog] = useState({
-    emailLogin: "",
-    passwordLogin: ""
+    email: "",
+    password: ""
   })
   const { emailLogin, passwordLogin } = formLog;
   const handleChangeLog = (e) => {
@@ -32,11 +32,11 @@ export default function LoginModal({ loginShow, Close }) {
       [e.target.name]: e.target.value,
     });
   };
-
+  console.log(formLog)
   //Handlesubmit Login
   const handleSubmitLogin = useMutation(async (e) => {
     try {
-      // e.prefentDefault();
+      e.preventDefault();
 
       //Configuration Content Type
       const config = {
@@ -51,27 +51,16 @@ export default function LoginModal({ loginShow, Close }) {
       //insert data user to Database
       const response = await API.post("/login", reqBody, config);
       console.log(response);
-      // const {status, name, email, token} = response.data.data
-      if (response.data.data.level === "customer") {
-        dispatch({
-          type: "LOGIN_SUCCESS",
-          payload: response.data.data,
-        });
+      // const {level, name, email, token} = response.data.data
 
-        if (response.data.data.level === "admin") {
-          navigate('/admin')
-          // dispatch({
-          //   type: "ADMIN",
-          //   payload: response.data.data,
-          // });
-        } else {
-          navigate("/");
-        }
-      }
+      dispatch({
+        type: "LOGIN_SUCCESS",
+        payload: response.data.data,
+      });
       Close();
     } catch (error) {
       const alert = (
-        <Alert variant='danger' className='p-1'>Failed</Alert>
+        <Alert variant='danger' className='p-1'>Email or Password is wrong. Please insert a correct account!</Alert>
       );
       setMessage(alert);
       console.log(error);
@@ -85,11 +74,11 @@ export default function LoginModal({ loginShow, Close }) {
           { message && message }
           <Form onSubmit={ (e) => handleSubmitLogin.mutate(e) }          >
             <Form.Group className="mb-3" controlId="formBasicEmail">
-              <Form.Control type="email" placeholder="Enter email" name='emailLogin' value={ emailLogin } onChange={ handleChangeLog } />
+              <Form.Control type="email" placeholder="Enter email" name='email' value={ emailLogin } onChange={ handleChangeLog } />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicPassword">
-              <Form.Control type="password" placeholder="Password" name='passwordLogin' value={ passwordLogin } onChange={ handleChangeLog } />
+              <Form.Control type="password" placeholder="Password" name='password' value={ passwordLogin } onChange={ handleChangeLog } />
             </Form.Group>
             <Button type="submit" className='brownbutton lgbutton'>
               Login

@@ -86,6 +86,7 @@ func (h *handlerAuth) Login(w http.ResponseWriter, r *http.Request) {
 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
 		json.NewEncoder(w).Encode(response)
 	}
+	fmt.Println(request)
 
 	user := models.User{
 		Email:    request.Email,

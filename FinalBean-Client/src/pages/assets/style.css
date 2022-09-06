@@ -152,3 +152,6 @@
     width: 100px;
     height: fit-content;
 }
+.tools:hover {
+    cursor: pointer;
+}

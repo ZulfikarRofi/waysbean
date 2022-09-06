@@ -24,24 +24,6 @@ export default function Navbarr() {
         <Navbar.Brand href='/'>
           <img src={waysbeanlogo} alt='waysbean' style={{width:'100%'}} />
         </Navbar.Brand>
-{/* 
-        <div style={{display:"flex", flexDirection:"row"}}>
-            <div className='d-flex align-items-center' onClick={() => navigate('/cart')}>
-                <img src={cart} alt='' style={{width:"40px", height:"40px",marginRight:'20px'}} />
-            </div>
-            <Nav>
-            <NavDropdown
-              id="nav-dropdown-dark-example"
-              title={<img src={user} alt='' style={{width:"50px", borderRadius:"50px"}} />}
-              menuVariant="light"
-            >
-              <NavDropdown.Item href="/profile"><img src={profile} alt='' style={{width:"15px", height:"15px"}} /> Profile</NavDropdown.Item>
-              <NavDropdown.Item href="/logout">
-                <img src={logout} alt='' style={{width:"15px", height:"15px"}} /> Log Out
-              </NavDropdown.Item>
-            </NavDropdown>
-            </Nav>
-        </div> */}
             <Nav>
             <NavDropdown
               id="nav-dropdown-dark-example"

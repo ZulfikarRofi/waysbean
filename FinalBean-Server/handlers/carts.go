@@ -6,6 +6,7 @@ import (
 	"_project_name_/models"
 	"_project_name_/repositories"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"strconv"
 
@@ -59,6 +60,24 @@ func (h *handlerCart) GetCart(w http.ResponseWriter, r *http.Request) {
 
 func (h *handlerCart) GetTransactionID(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
+	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+	userId := int(userInfo["id"].(float64))
+
+	cart, err := h.CartRepository.GetTransactionID(userId)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	response := dto.SuccessResult{Code: http.StatusOK, Data: cart}
+	json.NewEncoder(w).Encode(response)
+}
+
+func (h *handlerCart) CreateCart(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Content-Type", "application/json")
 
 	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
 	userId := int(userInfo["id"].(float64))
@@ -85,8 +104,17 @@ func (h *handlerCart) GetTransactionID(w http.ResponseWriter, r *http.Request) {
 	cartForm := models.Cart{
 		ProductID:     request.ProductID,
 		TransactionID: transaction.ID,
-		Qty:           request.Qty,
+		Qty:           1,
 		Subtotal:      request.Subtotal,
+	}
+
+	validator := validator.New()
+	err2 := validator.Struct(cartForm)
+	if err2 != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+		json.NewEncoder(w).Encode(response)
+		return
 	}
 
 	data, err := h.CartRepository.CreateCart(cartForm)
@@ -96,11 +124,67 @@ func (h *handlerCart) GetTransactionID(w http.ResponseWriter, r *http.Request) {
 		json.NewEncoder(w).Encode(response)
 		return
 	}
+	fmt.Println(data)
 
 	w.WriteHeader(http.StatusOK)
 	response := dto.SuccessResult{Code: http.StatusOK, Data: data}
 	json.NewEncoder(w).Encode(response)
 }
+
+// func (h *handlerCart) CreateCart(w http.ResponseWriter, r *http.Request) {
+// 	w.Header().Set("Content-Type", "application/json")
+
+// 	userInfo := r.Context().Value("userInfo").(jwt.MapClaims)
+// 	userId := int(userInfo["id"].(float64))
+
+// 	request := new(cartdto.CartRequest)
+// 	if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+// 		w.WriteHeader(http.StatusBadRequest)
+// 		response := dto.ErrorResult{Code: http.StatusBadRequest, Message: err.Error()}
+// 		json.NewEncoder(w).Encode(response)
+// 		return
+// 	}
+
+// 	validation := validator.New()
+// 	err := validation.Struct(request)
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusInternalServerError)
+// 		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+// 		json.NewEncoder(w).Encode(response)
+// 		return
+// 	}
+
+// 	transaction, err := h.CartRepository.GetTransactionID(userId)
+
+// 	cartForm := models.Cart{
+// 		ProductID:     request.ProductID,
+// 		TransactionID: transaction.ID,
+// 		Qty:           1,
+// 		Subtotal:      request.Subtotal,
+// 	}
+
+// 	validator := validator.New()
+// 	err2 := validator.Struct(cartForm)
+// 	if err2 != nil {
+// 		w.WriteHeader(http.StatusInternalServerError)
+// 		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+// 		json.NewEncoder(w).Encode(response)
+// 		return
+// 	}
+
+// 	data, err := h.CartRepository.CreateCart(cartForm)
+// 	if err != nil {
+// 		w.WriteHeader(http.StatusInternalServerError)
+// 		response := dto.ErrorResult{Code: http.StatusInternalServerError, Message: err.Error()}
+// 		json.NewEncoder(w).Encode(response)
+// 		return
+// 	}
+// 	fmt.Println(data)
+
+// 	w.WriteHeader(http.StatusOK)
+// 	response := dto.SuccessResult{Code: http.StatusOK, Data: data}
+// 	json.NewEncoder(w).Encode(response)
+// }
 
 func (h *handlerCart) UpdateCart(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")

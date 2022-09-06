@@ -2,6 +2,9 @@ import React from 'react'
 import {Container, Table } from 'react-bootstrap'
 import NavbarUser from '../components/Navbar/NavbarUser'
 import ListTransactionModal from '../components/modal/TranasctionModal';
+import { useQuery } from 'react-query';
+import {API} from '../config/api'
+import { useEffect } from 'react';
 
 export default function AdminPage() {
 
@@ -9,6 +12,11 @@ export default function AdminPage() {
 
   const closeTransmodal = () => setModalShow(false);
   const openTransmodal = () => setModalShow(true);
+
+  let {data: transactions} = useQuery("product", async () => {
+    const response = await API.get("/transactions");
+    return response.data.data;
+  });
 
   return (
     <div>
@@ -31,25 +39,28 @@ export default function AdminPage() {
               </thead>
               <tbody className='triggered' style={{border:"1px solid grey"}}>
                       <ListTransactionModal show={modalShow} close={closeTransmodal} />
-                      <tr onClick={openTransmodal}>
-                          <td>
-                              1
-                          </td>
-                          <td style={{border:"1px solid grey"}}>
-                                  test
-                          </td>
-                          <td style={{border:"1px solid grey"}}>
-                            test
-                          </td>
-                          <td style={{border:"1px solid grey"}}>
-                            test 
-                          </td>
-                          <td style={{border:"1px solid grey"}}>
-                            test
-                          </td>
-                          <td className='' style={{border:"1px solid grey"}}>
-                          </td>
-                      </tr>
+                      {transactions?.map((item,index) => (
+                        <tr onClick={openTransmodal}>
+                            <td>
+                                {index + 1}
+                            </td>
+                            <td style={{border:"1px solid grey"}}>
+                                {item.user.name}
+                            </td>
+                            <td style={{border:"1px solid grey"}}>
+                                {item.user.address}
+                            </td>
+                            <td style={{border:"1px solid grey"}}>
+                                {item.user.postcode}
+                            </td>
+                            <td style={{border:"1px solid grey"}}>
+                                {item.product?.name}
+                            </td>
+                            <td className='' style={{border:"1px solid grey"}}>
+                              {item.status}
+                            </td>
+                        </tr>
+                      ))}
               </tbody>
           </Table>
       </div>

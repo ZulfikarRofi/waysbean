@@ -13,6 +13,15 @@ type Product struct {
 	UpdatedAt   time.Time `json:"-"`
 }
 
+type ProductResponse struct {
+	ID     int    `json:"id"`
+	Name   string `json:"name"`
+	Desc   string `json:"desc"`
+	Price  int    `json:"price"`
+	Image  string `json:"image"`
+	Stock  int    `json:"stock"`
+	UserID int    `json:"-"`
+}
 type ProductTransaction struct {
 	ID          int    `json:"id"`
 	Name        string `json:"name"`
@@ -23,5 +32,9 @@ type ProductTransaction struct {
 }
 
 func (ProductTransaction) TableName() string {
+	return "products"
+}
+
+func (ProductResponse) TableName() string {
 	return "products"
 }

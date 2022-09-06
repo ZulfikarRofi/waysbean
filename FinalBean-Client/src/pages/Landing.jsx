@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { Container, Row, Col, Card } from 'react-bootstrap'
 import NavbarUser from '../components/Navbar/NavbarUser'
 import banner from '../pages/assets/Jumbotron.png';
-import { dataProduct } from '../components/dummy/dataProduct'
 import '../pages/assets/style.css'
 import convertRupiah from 'rupiah-format';
 import { Link } from 'react-router-dom';
@@ -10,12 +9,11 @@ import { useQuery, useMutation } from 'react-query';
 import { API } from '../config/api';
 
 export default function Landing() {
-
     let [products, setProduct] = useState()
 
     const findProduct = async () => {
         try {
-            const response = await API.get('/products');
+            const response = await API.get('/list-products');
             setProduct(response.data.data)
         } catch (error) {
             console.log(error.message)

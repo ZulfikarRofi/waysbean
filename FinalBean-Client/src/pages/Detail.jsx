@@ -1,85 +1,85 @@
 import React from 'react';
 import { Button, Col, Container, Row } from 'react-bootstrap';
 import { useNavigate, useParams } from 'react-router-dom';
-import {dataProduct} from '../components/dummy/dataProduct';
 import NavbarUser from '../components/Navbar/NavbarUser';
 import '../pages/assets/style.css';
-import ethiopia from '../components/dummy/ethiopia.png';
-import rwanda from '../components/dummy/rwanda.png';
-import guatemala from '../components/dummy/guatemala.png';
-import nicaragua from '../components/dummy/nicaragua.png';
 import { API } from '../config/api';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import { useMutation } from 'react-query';
 
 export default function Detail() {
-  const [product, setProduct] = useState();
-  const { id } = useParams();
+  const title = "Product";
+    document.title = "Waysbean | " + title;
 
-  let navigate = useNavigate();
-  //Product Fetch
-  const findProduct = async () => {
-    try {
-      let response = await API.get("/product/" + id);
-      setProduct(response.data.data);
-    } catch (error) {
-      console.log(error.message)
-    }
-  }
-
-    useEffect(() => {
-      findProduct();
-    }, 
-    []);
-
-    //Check Transaction
-    const [transaction, setTransaction] = useState();
-    const getTrans = async () => {
-      try {
-        let response = await API.get("/transaction-status");
-        setTransaction(response.data.data);
-      } catch (error) {
-        console.log(error.message)
-      }
+    let navigate = useNavigate();
+    const { id } = useParams();
+    // Product Fetch
+    const [product, SetProduct] = useState();
+    const findProduct = async () => {
+        try {
+        let response = await API.get("/product/" + id);
+        SetProduct(response.data.data);
+        console.log(response.data.data)
+        } catch (e) {
+        console.log(e.message);
+        }
     };
 
     useEffect(() => {
-      getTrans();
-    }, []);
+        findProduct();
+        }, []);
+        console.log(product);
 
-    console.log(transaction);
+      // Check Transaction
+    const [transaction, setTransaction] = useState();
+    const getTrans = async () => {
+    try {
+        let response = await API.get("/transaction-status");
+        setTransaction(response.data.data);
+        } catch (e) {
+        console.log(e.message);
+        }
+    };
 
+        useEffect(() => {
+        getTrans();
+        }, []);
+        console.log(transaction)
 
-    //handle Add to Cart
-
-    const handleAddCart = useMutation(
-      async (e) => {
+    // Handle for Add to cart
+    const handleAddToCart = useMutation(async (e) => {
         try {
-          e.prefentDefault();
+        e.preventDefault();
 
-          const config = {
+        const config = {
             headers: {
-              "Content-type":"application/json",
+            "Content-type": "application/json",
             },
-          };
-          await API.post("/transaction", config)
+        };
+        await API.post("/transaction", config);
 
-          const data = {
+        const data = {
             product_id: product.id,
             qty: 1,
             subtotal: product.price,
-          };
+        };
 
-          const body = JSON.stringify(data);
+        const body = JSON.stringify(data);
+        console.log(body)
 
-          await API.post("/cart", body, config);
-          navigate("/");
+        await API.post("/cart", body, config);
+        navigate("/cart");
         } catch (error) {
-          console.log(error);
+        console.log(error);
         }
-      }
-    )
+    });
+
+
+    const moving = useNavigate()
+    const moveToDetailProduct = (id) => {
+        moving('/detail-product/' + id)
+    }
 
   return (
     <div>
@@ -88,19 +88,20 @@ export default function Detail() {
         <Row className='mt-5 mb-2'>
           <Col xs={12} md={6}>
               <div className='detailimage'>
-                <img src={product?.image} alt='product' style={{width:'60%'}} />
+                <img src={product?.image} alt='product' style={{width:'60%'}} onClick={() => moveToDetailProduct(product?.id)} />
               </div>
           </Col>
           <Col xs={12} md={6}>
             <div style={{width:'80%'}}>
               <h1 className='mb-3 fw-bold'>{product?.name}</h1>
               <p className='mb-5'style={{fontSize:'18px'}}>Stock : {product?.stock}</p>
-              <p className='detaildesc mb-5'>{product?.desc}</p>
+              <p className='detaildesc mb-5'>{product?.description}</p>
               <p className='mb-2 detailprice'>{product?.price}</p>
             </div>
             <div>
-              <Button className='mt-4 lgbutton brownbutton' style={{width:'80%'}}>
-                Add Chart
+              <Button className='mt-4 lgbutton brownbutton' type='submit' onClick={(e) => handleAddToCart.mutate(e)} style={{width:'80%'}}>
+                {" "}
+                Add Cart
               </Button>
             </div>
           </Col>
